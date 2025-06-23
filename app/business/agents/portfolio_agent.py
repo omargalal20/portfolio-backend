@@ -4,7 +4,7 @@ from fastrtc import Stream, ReplyOnPause, get_stt_model, get_tts_model, get_clou
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import create_react_agent
 
-from logger import setup_logging
+from app.config.logger import setup_logging
 from settings import get_settings
 
 load_dotenv()
@@ -18,7 +18,7 @@ async def get_credentials():
                                                        turn_key_api_token=settings.CLOUDFLARE_TURN_KEY_API_TOKEN)
 
 
-def voice_agent():
+def portfolio_agent():
     model = ChatGoogleGenerativeAI(
         model=settings.AGENT_ID,
         google_api_key=settings.GOOGLE_API_KEY,
@@ -59,3 +59,8 @@ def voice_agent():
         rtc_configuration=get_credentials,
         server_rtc_configuration=get_cloudflare_turn_credentials(ttl=360_000)
     )
+
+
+if __name__ == "__main__":
+    agent = portfolio_agent()
+    agent.ui.launch()
