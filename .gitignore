@@ -163,3 +163,6 @@ cython_debug/
 
 # Secret JSON Files
 *.json
+
+# RAG Data
+/rag_data

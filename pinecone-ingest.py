@@ -41,7 +41,7 @@ class IngestionService:
         # Split documents
         text_splitter = RecursiveCharacterTextSplitter(
             separators=["\n\n"],
-            chunk_size=1000,
+            chunk_size=500,
             chunk_overlap=0,
             length_function=len,
             is_separator_regex=False,
@@ -49,21 +49,11 @@ class IngestionService:
         splitted_documents = text_splitter.split_documents(loaded_documents)
         logger.info(f"Split into {len(splitted_documents)} chunks")
 
-        # for doc in splitted_documents:
-        #     local_path = doc.metadata.get("source", "")
-        #     if "scraped_data\\fhir\\" in local_path:  # Handle Windows-style paths
-        #         # Transform local file path to actual FHIR URL
-        #         relative_path = local_path.replace("scraped_data\\fhir\\", "").replace("\\", "/")
-        #         fhir_url = f"https://hl7.org/fhir/R5/{relative_path}"
-        #         doc.metadata.update({"source": fhir_url})
-        #     else:
-        #         logger.warning(f"Source path not in expected format: {local_path}")
-
         # Generate unique UUIDs for each document
         uuids = [str(uuid4()) for _ in range(len(splitted_documents))]
 
         # Embed and store in Pinecone
-        # self.vector_store.add_documents(documents=splitted_documents, ids=uuids)
+        self.vector_store.add_documents(documents=splitted_documents, ids=uuids)
         logger.info("Ingestion completed successfully")
 
 
@@ -71,4 +61,4 @@ class IngestionService:
 if __name__ == '__main__':
     settings = get_settings()
     ingestion_service = IngestionService()
-    ingestion_service.ingest(os.path.abspath("data"))
+    ingestion_service.ingest(os.path.abspath("rag_data"))

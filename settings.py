@@ -48,6 +48,9 @@ class Settings(BaseSettings):
 
     EMBEDDING_MODEL_ID: str
 
+    SUPABASE_URL: str
+    SUPABASE_SERVICE_KEY: str
+
     class Config:
         env_file = get_env_filename()
         env_file_encoding = "utf-8"

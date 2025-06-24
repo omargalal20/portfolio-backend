@@ -61,4 +61,4 @@ class IngestionService:
 if __name__ == '__main__':
     settings = get_settings()
     ingestion_service = IngestionService()
-    ingestion_service.ingest(os.path.abspath("../../../data/omar_elhanafy_cv.pdf"))
+    ingestion_service.ingest(os.path.abspath("../../../rag_data/omar_elhanafy_cv.pdf"))
