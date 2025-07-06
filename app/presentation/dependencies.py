@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.business.services.ingestion_service import IngestionService
+from business.services.ingestion_service import IngestionService
 
 
 # =============================================================================

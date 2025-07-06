@@ -11,7 +11,7 @@ from pinecone import Pinecone
 from typing_extensions import List, TypedDict
 
 from app.config.logger import setup_logging
-from settings import get_settings
+from app.config.settings import get_settings
 
 
 class State(TypedDict):
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     graph_builder.add_edge(START, "retrieve")
     graph = graph_builder.compile()
 
-    graph.get_graph().draw_mermaid_png(output_file_path="assets/portfolio_agent_graph.png")
+    graph.get_graph().draw_mermaid_png(output_file_path="../assets/portfolio_agent_graph.png")
 
     agent = portfolio_agent()
     agent.ui.launch()

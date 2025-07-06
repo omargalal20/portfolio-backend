@@ -3,8 +3,8 @@ import tempfile
 
 from fastapi import APIRouter, UploadFile
 
-from settings import get_settings
-from app.presentation.dependencies import IngestionServiceDependency
+from config.settings import get_settings
+from presentation.dependencies import IngestionServiceDependency
 
 router = APIRouter(prefix="/ingestion")
 

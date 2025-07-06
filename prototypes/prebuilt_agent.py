@@ -10,7 +10,7 @@ from loguru import logger
 from pinecone import Pinecone
 
 from app.config.logger import setup_logging
-from settings import get_settings
+from app.config.settings import get_settings
 
 system_message = """
     # Personality

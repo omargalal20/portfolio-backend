@@ -4,15 +4,20 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.business.agents.portfolio_agent import portfolio_agent
-from app.config.logger import setup_logging
-from app.presentation.middleware.logger import LoggerMiddleware
-from app.presentation.routers import health
-from app.presentation.routers.v1 import ingestion
-from settings import get_settings
+from business.agents.portfolio_agent import PortfolioAgent
+from business.services.orchestrator_service import OrchestratorService
+from config.logger import setup_logging
+from presentation.middleware.logger import LoggerMiddleware
+from presentation.routers import health
+from presentation.routers.v1 import ingestion
+from config.settings import get_settings
 
 settings = get_settings()
-agent = portfolio_agent()
+
+# Initialize the portfolio agent and orchestrator service
+portfolio_agent = PortfolioAgent()
+orchestrator_service = OrchestratorService(portfolio_agent)
+stream = orchestrator_service.create_stream()
 
 
 @asynccontextmanager
@@ -37,7 +42,8 @@ app.add_middleware(
 
 app.add_middleware(LoggerMiddleware)
 
-agent.mount(app)
+# Mount the FastRTC stream on the app
+stream.mount(app)
 
 # V1 APIs
 app.include_router(health.router, prefix="/api/v1", tags=["Health"])

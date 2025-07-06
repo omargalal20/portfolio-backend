@@ -9,7 +9,7 @@ from langchain_pinecone import PineconeVectorStore
 from loguru import logger
 from pinecone import Pinecone
 
-from settings import get_settings
+from app.config.settings import get_settings
 
 settings = get_settings()
 
@@ -61,4 +61,4 @@ class IngestionService:
 if __name__ == '__main__':
     settings = get_settings()
     ingestion_service = IngestionService()
-    ingestion_service.ingest(os.path.abspath("rag_data"))
+    ingestion_service.ingest(os.path.abspath("../rag_data"))

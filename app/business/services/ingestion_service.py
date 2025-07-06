@@ -9,7 +9,7 @@ from langchain_pinecone import PineconeVectorStore
 from loguru import logger
 from pinecone import Pinecone
 
-from settings import get_settings
+from app.config.settings import get_settings
 
 settings = get_settings()
 
