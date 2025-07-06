@@ -1,0 +1,17 @@
+__pycache__
+*.pyc
+.venv
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+.git
+env/
+*.env
+*.env.*
+env.*
+assets/
+tests/
+*.log
+prototypes/
+rag_data/

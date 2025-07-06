@@ -36,6 +36,7 @@ class Settings(BaseSettings):
 
     CLOUDFLARE_TURN_KEY_ID: str
     CLOUDFLARE_TURN_KEY_API_TOKEN: str
+    CLOUDFLARE_API_KEY: str
 
     HF_TOKEN: str
 

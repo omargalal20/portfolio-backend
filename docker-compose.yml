@@ -1,0 +1,12 @@
+name: medical-qa-assistant
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .  # Path to the directory with the Dockerfile
+      dockerfile: ./Dockerfile
+    ports:
+      - "${APP_PORT}:${APP_PORT}"  # Ensure APP_PORT is defined in your .env
+    env_file:
+      - .env
