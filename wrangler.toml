@@ -1,5 +1,5 @@
-name = "uv-cloudflare-workers-example"
-main = "src/worker.py"
+name = "portfolio-backend"
+main = "app/main.py"
 compatibility_flags = ["python_workers"]
 compatibility_date = "2025-03-16"
 
