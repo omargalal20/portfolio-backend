@@ -69,13 +69,9 @@ jobs:
         run: |
           ssh $EC2_USER@$EC2_HOST << 'EOF'
             # Update deployment environment variables
-            sed -i '/^ECR_REGISTRY=/d' .env
-            sed -i '/^ECR_REPOSITORY=/d' .env
-            sed -i '/^IMAGE_TAG=/d' .env
-            
-            echo "ECR_REGISTRY=${ECR_REGISTRY}" >> .env
-            echo "ECR_REPOSITORY=${ECR_REPOSITORY}" >> .env
-            echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
+            export ECR_REGISTRY="${ECR_REGISTRY}"
+            export ECR_REPOSITORY="${ECR_REPOSITORY}"
+            export IMAGE_TAG="${IMAGE_TAG}"
             
             # Stop and remove existing containers
             docker-compose down || true
