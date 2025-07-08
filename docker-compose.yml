@@ -1,12 +1,12 @@
-name: medical-qa-assistant
+name: portfolio
 
 services:
   backend:
     container_name: backend
-    build:
-      context: .  # Path to the directory with the Dockerfile
-      dockerfile: ./Dockerfile
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
     ports:
-      - "${APP_PORT}:${APP_PORT}"  # Ensure APP_PORT is defined in your .env
+      - "${APP_PORT}:${APP_PORT}"
     env_file:
       - .env
+    restart: unless-stopped
+    pull_policy: always
