@@ -1,4 +1,4 @@
-FROM python:3.13-alpine
+FROM python:3.13-slim
 
 # Install minimal dependencies
 RUN apt-get update && apt-get install -y
