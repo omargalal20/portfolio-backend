@@ -1,4 +1,4 @@
-name: Build and Deploy to Cloudflare
+name: Build and Deploy to EC2
 
 
 on:
@@ -57,29 +57,31 @@ jobs:
         run: |
           ssh-keyscan $EC2_HOST >> ~/.ssh/known_hosts
 
-      - name: Copy docker-compose.yml to EC2
-        run: |
-          scp ./docker-compose.yml $EC2_USER@$EC2_HOST:~/
-
       - name: Deploy to EC2
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPO }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          ssh $EC2_USER@$EC2_HOST << 'EOF'
-            # Update deployment environment variables
+          ssh $EC2_USER@$EC2_HOST << EOF
+            # Stop and remove existing containers
+            docker-compose down || true
+          
+            # Export runtime vars for docker-compose
             export ECR_REGISTRY="${ECR_REGISTRY}"
             export ECR_REPOSITORY="${ECR_REPOSITORY}"
             export IMAGE_TAG="${IMAGE_TAG}"
-            
-            # Stop and remove existing containers
-            docker-compose down || true
-            
-            # Pull latest image and start services
-            docker-compose --env-file .env pull
-            docker-compose --env-file .env up -d
-            
-            # Clean up old images to save space
+          
+            # Use --env-file for static values, and inherit the exported env vars
+            set -a
+            [ -f .env ] && source .env
+            set +a
+          
+            # Pull and start services
+            docker-compose pull
+            docker-compose up -d
+          
+            # Clean up old images
             docker image prune -f
           EOF
+
