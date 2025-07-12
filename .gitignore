@@ -166,3 +166,6 @@ cython_debug/
 
 # RAG Data
 /rag_data
+
+# Tmp
+/tmp

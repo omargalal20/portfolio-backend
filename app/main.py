@@ -7,10 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from business.agents.portfolio_agent import PortfolioAgent
 from business.services.orchestrator_service import OrchestratorService
 from config.logger import setup_logging
+from config.settings import get_settings
 from presentation.middleware.logger import LoggerMiddleware
 from presentation.routers import health
 from presentation.routers.v1 import ingestion
-from config.settings import get_settings
 
 settings = get_settings()
 

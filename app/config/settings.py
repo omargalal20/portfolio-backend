@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     APP_NAME: str
     APP_VERSION: str
     APP_PORT: int
+    APP_SECRET_MESSAGE: str
+    APP_SECRET_KEY: str
 
     AGENT_ID: str
     AGENT_TEMPERATURE: float
@@ -51,6 +53,7 @@ class Settings(BaseSettings):
 
     SUPABASE_URL: str
     SUPABASE_SERVICE_KEY: str
+    SUPABASE_STORAGE_BUCKET_NAME: str
 
     class Config:
         env_file = get_env_filename()
