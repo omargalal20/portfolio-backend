@@ -34,7 +34,7 @@ def verify_hmac_signature(signature: str, expected_signature: str) -> bool:
 async def ingest_pdf(
         file: Annotated[UploadFile, File(description="PDF file to upload and ingest")],
         service: IngestionServiceDependency,
-        x_omar_signature: str = Header(None, description="HMAC signature for request authentication"),
+        x_portfolio_signature: str = Header(..., description="HMAC signature for request authentication"),
 ):
     """
     Upload a PDF file to Supabase storage and ingest it into the vector database
@@ -42,10 +42,10 @@ async def ingest_pdf(
     Args:
         file: The PDF file to upload
         service: Injected ingestion service
-        x_omar_signature: HMAC signature for request authentication
+        x_portfolio_signature: HMAC signature for request authentication
     """
     # Verify HMAC signature if authentication is enabled
-    if not x_omar_signature:
+    if not x_portfolio_signature:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="HMAC signature header is required"
@@ -60,7 +60,7 @@ async def ingest_pdf(
     expected_signature = mac.hexdigest()
 
     # Verify signature using constant-time comparison
-    if not verify_hmac_signature(x_omar_signature, expected_signature):
+    if not verify_hmac_signature(x_portfolio_signature, expected_signature):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid HMAC signature"
