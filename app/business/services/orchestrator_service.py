@@ -18,8 +18,8 @@ class OrchestratorService:
     async def get_credentials():
         return await get_cloudflare_turn_credentials_async(
             hf_token=settings.HF_TOKEN,
-            turn_key_id=settings.CLOUDFLARE_TURN_KEY_ID,
-            turn_key_api_token=settings.CLOUDFLARE_TURN_KEY_API_TOKEN
+            turn_key_id=settings.TURN_KEY_ID,
+            turn_key_api_token=settings.TURN_KEY_API_TOKEN
         )
 
     def create_stream(self) -> Stream:

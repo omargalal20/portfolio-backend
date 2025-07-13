@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,9 +13,8 @@ from presentation.middleware.logger import LoggerMiddleware
 from presentation.routers import health
 from presentation.routers.v1 import ingestion
 
+load_dotenv()
 settings = get_settings()
-
-# Initialize the portfolio agent and orchestrator service
 portfolio_agent = PortfolioAgent()
 orchestrator_service = OrchestratorService(portfolio_agent)
 stream = orchestrator_service.create_stream()

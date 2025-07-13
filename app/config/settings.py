@@ -36,9 +36,10 @@ class Settings(BaseSettings):
     LANGSMITH_API_KEY: str
     LANGSMITH_PROJECT: str
 
-    CLOUDFLARE_TURN_KEY_ID: str
-    CLOUDFLARE_TURN_KEY_API_TOKEN: str
     CLOUDFLARE_API_KEY: str
+
+    TURN_KEY_ID: str
+    TURN_KEY_API_TOKEN: str
 
     HF_TOKEN: str
 
