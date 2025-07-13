@@ -16,8 +16,15 @@ class OrchestratorService:
 
     @staticmethod
     async def get_credentials():
+        """
+        Cloudflare TURN Server with Cloudflare credentials
+
+        1. Create a Cloudflare account at: https://dash.cloudflare.com/
+        2. Go to Realtime (Calls) -> TURN Server -> Get Started
+        3. Get Turn Token ID and API Token
+        4. Set environment variables: TURN_KEY_ID and TURN_KEY_API_TOKEN
+        """
         return await get_cloudflare_turn_credentials_async(
-            hf_token=settings.HF_TOKEN,
             turn_key_id=settings.TURN_KEY_ID,
             turn_key_api_token=settings.TURN_KEY_API_TOKEN
         )
@@ -54,7 +61,9 @@ class OrchestratorService:
         return Stream(
             handler=ReplyOnPause(echo),
             modality="audio",
+            # send-receive: bidirectional streaming (default)
+            # send: client to server only
+            # receive: server to client only
             mode="send-receive",
-            rtc_configuration=self.get_credentials,
-            server_rtc_configuration=get_cloudflare_turn_credentials(ttl=360_000)
+            rtc_configuration=self.get_credentials
         )

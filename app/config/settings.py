@@ -41,8 +41,6 @@ class Settings(BaseSettings):
     TURN_KEY_ID: str
     TURN_KEY_API_TOKEN: str
 
-    HF_TOKEN: str
-
     PINECONE_API_KEY: str
     PINECONE_INDEX_NAME: str
 
