@@ -17,9 +17,17 @@ def get_portfolio_agent() -> PortfolioAgent:
 # =============================================================================
 # CLIENT DEPENDENCIES
 # =============================================================================
-def get_supabase_client() -> SupabaseClient:
-    """Provide a configured SupabaseClient instance."""
-    return SupabaseClient()
+_supabase_client_singleton = None
+
+async def get_supabase_client() -> SupabaseClient:
+    """Provide a configured SupabaseClient instance (singleton)."""
+    global _supabase_client_singleton
+    
+    if _supabase_client_singleton is None:
+        _supabase_client_singleton = SupabaseClient()
+        await _supabase_client_singleton.initialize()
+    
+    return _supabase_client_singleton
 
 
 # =============================================================================

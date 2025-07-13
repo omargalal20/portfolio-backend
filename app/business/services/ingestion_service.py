@@ -32,7 +32,7 @@ class IngestionService:
             embedding=self.embeddings_model
         )
 
-    def ingest(self, upload_request: UploadFileRequest):
+    async def ingest(self, upload_request: UploadFileRequest):
         """
         Ingest a file by uploading to Supabase, then indexing to Pinecone
         
@@ -42,14 +42,14 @@ class IngestionService:
         logger.info(f"Starting ingestion for file: {upload_request.file_path}")
 
         # 1. Upload file to Supabase storage
-        upload_response = self.supabase_client.upload_file(upload_request)
+        upload_response = await self.supabase_client.upload_file(upload_request)
 
         # 2. Get public URL for the uploaded file
         get_request = GetFileRequest(
             bucket_name=upload_request.bucket_name,
             storage_path=upload_response.path
         )
-        file_url = self.supabase_client.get_file_url(get_request)
+        file_url = await self.supabase_client.get_file_url(get_request)
 
         # 3. Load PDF directly from URL
         pdf_loader = PyPDFLoader(file_url)

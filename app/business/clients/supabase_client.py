@@ -1,7 +1,8 @@
 import os
+from typing import Optional
 
 from loguru import logger
-from supabase import create_client, Client
+from supabase import create_async_client, AsyncClient
 
 from config.settings import get_settings
 from presentation.schemas.requests.ingestion import UploadFileRequest, GetFileRequest
@@ -10,22 +11,47 @@ settings = get_settings()
 
 
 class SupabaseClient:
-    def __init__(self):
-        self.client: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+    _instance = None
+    _client: Optional[AsyncClient] = None
+    _initialized = False
 
-    def get_buckets(self):
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(SupabaseClient, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        # Only initialize once
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+
+    async def initialize(self):
+        """Initialize the async Supabase client (only once)"""
+        if not self._initialized or self._client is None:
+            self._client = await create_async_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+            self._initialized = True
+            logger.info("Supabase client initialized (singleton)")
+
+    async def _ensure_client(self):
+        """Ensure the client is initialized before use"""
+        if self._client is None:
+            await self.initialize()
+
+    async def get_buckets(self):
         """Get all buckets from Supabase storage"""
-        response = self.client.storage.list_buckets()
+        await self._ensure_client()
+        response = await self._client.storage.list_buckets()
         logger.info(f"Buckets: {response}")
         return response
 
-    def get_bucket(self, bucket_name: str):
+    async def get_bucket(self, bucket_name: str):
         """Get a specific bucket from Supabase storage"""
-        response = self.client.storage.get_bucket(bucket_name)
+        await self._ensure_client()
+        response = await self._client.storage.get_bucket(bucket_name)
         logger.info(f"Bucket: {response}")
         return response
 
-    def upload_file(self, upload_request: UploadFileRequest):
+    async def upload_file(self, upload_request: UploadFileRequest):
         """
         Upload a file to Supabase storage
         
@@ -35,14 +61,16 @@ class SupabaseClient:
         Returns:
             The upload response from Supabase
         """
+        await self._ensure_client()
+        
         file_options = {"cache-control": "3600", "upsert": "false"}
         if upload_request.content_type:
             file_options["content-type"] = upload_request.content_type
 
         # Read the file content and pass as bytes
         file_content = upload_request.file_object.read()
-        response = (
-            self.client.storage
+        response = await (
+            self._client.storage
             .from_(upload_request.bucket_name)
             .upload(
                 file=file_content,
@@ -54,7 +82,7 @@ class SupabaseClient:
         logger.info(f"File uploaded successfully to {upload_request.bucket_name}/{upload_request.storage_path}")
         return response
 
-    def download_file(self, get_request: GetFileRequest, local_path: str):
+    async def download_file(self, get_request: GetFileRequest, local_path: str):
         """
         Download a file from Supabase storage
         
@@ -65,11 +93,13 @@ class SupabaseClient:
         Returns:
             The download response from Supabase
         """
+        await self._ensure_client()
+        
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
 
-        response = (
-            self.client.storage
+        response = await (
+            self._client.storage
             .from_(get_request.bucket_name)
             .download(path=get_request.storage_path)
         )
@@ -82,7 +112,7 @@ class SupabaseClient:
             f"File downloaded successfully from {get_request.bucket_name}/{get_request.storage_path} to {local_path}")
         return response
 
-    def get_file_url(self, get_request: GetFileRequest) -> str:
+    async def get_file_url(self, get_request: GetFileRequest) -> str:
         """
         Get the public URL for a file in Supabase storage
         
@@ -92,8 +122,10 @@ class SupabaseClient:
         Returns:
             The public URL of the file
         """
-        url = (
-            self.client.storage
+        await self._ensure_client()
+        
+        url = await (
+            self._client.storage
             .from_(get_request.bucket_name)
             .get_public_url(get_request.storage_path)
         )

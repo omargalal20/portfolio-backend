@@ -78,7 +78,7 @@ async def ingest_pdf(
     )
 
     # Call ingestion service with the file object directly
-    service.ingest(upload_request)
+    await service.ingest(upload_request)
 
     return {
         "message": "File uploaded and ingested successfully"

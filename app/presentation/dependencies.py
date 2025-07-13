@@ -2,15 +2,16 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from business.dependencies import SupabaseClientDependency
 from business.services.ingestion_service import IngestionService
+from business.dependencies import SupabaseClientDependency
 
 
 # =============================================================================
 # SERVICE DEPENDENCIES
 # =============================================================================
 
-def get_ingestion_service(supabase_client: SupabaseClientDependency) -> IngestionService:
+async def get_ingestion_service(supabase_client: SupabaseClientDependency) -> IngestionService:
+    """Provide a configured IngestionService instance."""
     return IngestionService(supabase_client)
 
 
