@@ -11,7 +11,7 @@ from config.logger import setup_logging
 from config.settings import get_settings
 from presentation.middleware.logger import LoggerMiddleware
 from presentation.routers import health
-from presentation.routers.v1 import ingestion
+from presentation.routers.v1 import ingestion, portfolio_agent as portfolio_agent_api
 
 load_dotenv()
 settings = get_settings()
@@ -48,6 +48,7 @@ stream.mount(app)
 # V1 APIs
 app.include_router(health.router, prefix="/api/v1", tags=["Health"])
 app.include_router(ingestion.router, prefix="/api/v1", tags=["Ingestion"])
+app.include_router(portfolio_agent_api.router, prefix="/api/v1", tags=["Portfolio Agent"])
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=settings.APP_PORT)

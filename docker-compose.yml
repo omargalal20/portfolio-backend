@@ -4,8 +4,7 @@ services:
   backend:
     container_name: backend
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
-    ports:
-      - "${APP_PORT}:${APP_PORT}"
+    network_mode: host
     env_file:
       - .env
     restart: unless-stopped

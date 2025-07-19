@@ -1,6 +1,6 @@
+import httpx
 from dotenv import load_dotenv
-from fastrtc import Stream, ReplyOnPause, get_stt_model, get_tts_model, get_cloudflare_turn_credentials, \
-    get_cloudflare_turn_credentials_async
+from fastrtc import Stream, ReplyOnPause, get_stt_model, get_tts_model, get_cloudflare_turn_credentials_async
 from loguru import logger
 
 from business.agents.portfolio_agent import PortfolioAgent
@@ -28,6 +28,41 @@ class OrchestratorService:
             turn_key_id=settings.TURN_KEY_ID,
             turn_key_api_token=settings.TURN_KEY_API_TOKEN
         )
+
+    async def generate_turn_credentials(self, ttl: int = 86400) -> dict:
+        """
+        Generate TURN server credentials for the frontend using Cloudflare API
+        
+        Args:
+            ttl: Time to live for the credentials in seconds (default: 86400 = 24 hours)
+            
+        Returns:
+            dict: ICE servers configuration for WebRTC
+        """
+        try:
+            url = f"https://rtc.live.cloudflare.com/v1/turn/keys/{settings.TURN_KEY_ID}/credentials/generate-ice-servers"
+
+            headers = {
+                "Authorization": f"Bearer {settings.TURN_KEY_API_TOKEN}",
+                "Content-Type": "application/json"
+            }
+
+            payload = {"ttl": ttl}
+
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, headers=headers, json=payload)
+
+                if not response.is_success:
+                    logger.error(f"Failed to generate TURN credentials: {response.status_code} {response.text}")
+                    raise Exception(f"Failed to generate TURN credentials: {response.status_code} {response.text}")
+
+                credentials = response.json()
+                logger.info("Successfully generated TURN server credentials")
+                return credentials
+
+        except Exception as e:
+            logger.error(f"Error generating TURN credentials: {e}")
+            raise
 
     def create_stream(self) -> Stream:
         """Create and return the FastRTC stream with the echo method."""
