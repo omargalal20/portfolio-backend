@@ -54,6 +54,13 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_KEY: str
     SUPABASE_STORAGE_BUCKET_NAME: str
 
+    FASTRTC_INPUT_SAMPLING_RATE: int
+    FASTRTC_OUTPUT_SAMPLING_RATE: int
+    FASTRTC_SESSION_TIME_LIMIT: int
+    FASTRTC_AUDIO_CHUNK_DURATION: float
+    FASTRTC_STARTED_TALKING_THRESHOLD: float
+    FASTRTC_SPEECH_THRESHOLD: float
+
     class Config:
         env_file = get_env_filename()
         env_file_encoding = "utf-8"

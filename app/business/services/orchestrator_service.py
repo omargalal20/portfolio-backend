@@ -1,6 +1,7 @@
 import httpx
 from dotenv import load_dotenv
-from fastrtc import Stream, ReplyOnPause, get_stt_model, get_tts_model, get_cloudflare_turn_credentials_async
+from fastrtc import Stream, ReplyOnPause, get_stt_model, get_tts_model, get_cloudflare_turn_credentials_async, \
+    AlgoOptions
 from loguru import logger
 
 from business.agents.portfolio_agent import PortfolioAgent
@@ -13,6 +14,8 @@ load_dotenv()
 class OrchestratorService:
     def __init__(self, portfolio_agent: PortfolioAgent):
         self.portfolio_agent = portfolio_agent
+        self.stt_model = get_stt_model()
+        self.tts_model = get_tts_model()
 
     @staticmethod
     async def get_credentials():
@@ -29,12 +32,13 @@ class OrchestratorService:
             turn_key_api_token=settings.TURN_KEY_API_TOKEN
         )
 
-    async def generate_turn_credentials(self, ttl: int = 86400) -> dict:
+    @staticmethod
+    async def generate_turn_credentials(ttl: int = 900) -> dict:
         """
         Generate TURN server credentials for the frontend using Cloudflare API
         
         Args:
-            ttl: Time to live for the credentials in seconds (default: 86400 = 24 hours)
+            ttl: Time to live for the credentials in seconds (default: 900 = 15 minutes)
             
         Returns:
             dict: ICE servers configuration for WebRTC
@@ -64,17 +68,19 @@ class OrchestratorService:
             logger.error(f"Error generating TURN credentials: {e}")
             raise
 
+    def startup(self):
+        for chunk in self.tts_model.stream_tts_sync(
+                " Hello! I'm Nova, Omar Elhanafy's portfolio assistant. How can I help you learn more about Omar today?"):
+            yield chunk
+
     def create_stream(self) -> Stream:
         """Create and return the FastRTC stream with the echo method."""
 
         def echo(audio):
             """Echo method that processes audio input and returns audio response."""
             try:
-                stt_model = get_stt_model()
-                tts_model = get_tts_model()
-
                 # Convert speech to text
-                question = stt_model.stt(audio)
+                question = self.stt_model.stt(audio)
                 logger.info(f"Received question: {question}")
 
                 # Generate response using the portfolio agent
@@ -82,7 +88,7 @@ class OrchestratorService:
                 logger.info(f"Generated answer: {answer}")
 
                 # Convert text to speech and stream audio chunks
-                for audio_chunk in tts_model.stream_tts_sync(answer):
+                for audio_chunk in self.tts_model.stream_tts_sync(answer):
                     yield audio_chunk
 
             except Exception as e:
@@ -94,11 +100,18 @@ class OrchestratorService:
                     yield audio_chunk
 
         return Stream(
-            handler=ReplyOnPause(echo),
+            handler=ReplyOnPause(echo,
+                                 self.startup,
+                                 algo_options=AlgoOptions(audio_chunk_duration=settings.FASTRTC_AUDIO_CHUNK_DURATION,
+                                                          started_talking_threshold=settings.FASTRTC_STARTED_TALKING_THRESHOLD,
+                                                          speech_threshold=settings.FASTRTC_SPEECH_THRESHOLD),
+                                 input_sample_rate=settings.FASTRTC_INPUT_SAMPLING_RATE,
+                                 output_sample_rate=settings.FASTRTC_INPUT_SAMPLING_RATE),
             modality="audio",
             # send-receive: bidirectional streaming (default)
             # send: client to server only
             # receive: server to client only
             mode="send-receive",
-            rtc_configuration=self.get_credentials
+            rtc_configuration=self.get_credentials,
+            time_limit=settings.FASTRTC_SESSION_TIME_LIMIT,  # Use setting for session time limit
         )
