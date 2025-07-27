@@ -70,7 +70,7 @@ class OrchestratorService:
 
     def startup(self):
         for chunk in self.tts_model.stream_tts_sync(
-                " Hello! I'm Nova, Omar Elhanafy's portfolio assistant. How can I help you learn more about Omar today?"):
+                " Hello I'm Nova, Omar Elhanafy's portfolio assistant. How can I help you learn more about Omar today?"):
             yield chunk
 
     def create_stream(self) -> Stream:
@@ -101,12 +101,13 @@ class OrchestratorService:
 
         return Stream(
             handler=ReplyOnPause(echo,
-                                 self.startup,
+                                 startup_fn=self.startup,
                                  algo_options=AlgoOptions(audio_chunk_duration=settings.FASTRTC_AUDIO_CHUNK_DURATION,
                                                           started_talking_threshold=settings.FASTRTC_STARTED_TALKING_THRESHOLD,
                                                           speech_threshold=settings.FASTRTC_SPEECH_THRESHOLD),
                                  input_sample_rate=settings.FASTRTC_INPUT_SAMPLING_RATE,
-                                 output_sample_rate=settings.FASTRTC_INPUT_SAMPLING_RATE),
+                                 output_sample_rate=settings.FASTRTC_INPUT_SAMPLING_RATE,
+                                 can_interrupt=False),
             modality="audio",
             # send-receive: bidirectional streaming (default)
             # send: client to server only
