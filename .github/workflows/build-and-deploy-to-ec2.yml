@@ -65,6 +65,8 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           ssh $EC2_USER@$EC2_HOST << EOF
+            cd /opt/portfolio-backend
+          
             # Stop and remove existing containers
             docker-compose down || true
           
@@ -88,4 +90,3 @@ jobs:
             # Clean up old images
             docker image prune -f
           EOF
-
