@@ -70,7 +70,7 @@ class OrchestratorService:
 
     def startup(self):
         for chunk in self.tts_model.stream_tts_sync(
-                " Hello I'm Nova, Omar Elhanafy's portfolio assistant. How can I help you learn more about Omar today?"):
+                "Hello... I'm Nova, Omar Elhanafee's portfolio assistant. How can I help you learn more about Omar today?"):
             yield chunk
 
     def create_stream(self) -> Stream:

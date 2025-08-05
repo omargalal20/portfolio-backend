@@ -3,7 +3,7 @@ from langchain_aws import BedrockEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_pinecone import PineconeVectorStore
 from langgraph.prebuilt import create_react_agent
-from langsmith import Client
+from langchain_core.messages import HumanMessage
 from loguru import logger
 from pinecone import Pinecone
 
@@ -22,10 +22,6 @@ class PortfolioAgent:
         self.max_iterations = 3
         self.recursion_limit = 2 * self.max_iterations + 1
         self.agent_name = "PortfolioAgent"
-
-        # Initialize LangSmith client
-        self.langsmith_client = Client(api_key=self.settings.LANGSMITH_API_KEY)
-        self.prompt = self.langsmith_client.pull_prompt("rlm/rag-prompt")
 
         # Initialize LLM
         self.llm = ChatGoogleGenerativeAI(
@@ -68,15 +64,31 @@ class PortfolioAgent:
         """Generate a response using RAG with the vector store."""
         try:
             # Get relevant context from vector store
-            context = self.vector_store.similarity_search(question)
-            docs_content = "\n\n".join(doc.page_content for doc in context)
+            context = self.vector_store.similarity_search(question, k=3)
+            docs_content = "\n\n".join(
+                f"Source: {doc.metadata}\nContent: {doc.page_content}"
+                for doc in context
+            )
+
+            # Create augmented user message with context
+            augmented_question = f"""
+            Question: {question}
+
+            Context Information:
+            {docs_content}
+
+            Please use the context information above to answer the question. If the context doesn't contain relevant information, 
+            acknowledge this and provide a general response based on your knowledge.
+            """
 
             # Create messages with context
-            messages = self.prompt.invoke({"question": question, "context": docs_content})
+            messages = [
+                HumanMessage(content=augmented_question)
+            ]
 
             # Generate response using the agent graph
             response = self.graph.invoke(
-                messages,
+                {"messages": messages},
                 {"recursion_limit": self.recursion_limit},
                 debug=True
             )
