@@ -54,7 +54,7 @@ class IngestionService:
         # 3. Load PDF directly from URL
         pdf_loader = PyPDFLoader(file_url)
         loaded_documents: list[Document] = pdf_loader.load()
-        logger.info(f"Loaded {len(loaded_documents)} documents")
+        logger.info(f"Loaded {len(loaded_documents)} pages from the document")
 
         # 4. Split documents
         text_splitter = RecursiveCharacterTextSplitter(

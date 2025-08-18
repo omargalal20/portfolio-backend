@@ -1,15 +1,15 @@
 from dotenv import load_dotenv
 from langchain_aws import BedrockEmbeddings
+from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_pinecone import PineconeVectorStore
 from langgraph.prebuilt import create_react_agent
-from langchain_core.messages import HumanMessage
 from loguru import logger
 from pinecone import Pinecone
 
+from business.prompt_templates.v1.portfolio_agent import PORTFOLIO_AGENT_SYSTEM_MESSAGE
 from config.logger import setup_logging
 from config.settings import get_settings
-from business.prompt_templates.v1.portfolio_agent import PORTFOLIO_AGENT_SYSTEM_MESSAGE
 
 load_dotenv()
 setup_logging()
@@ -66,7 +66,7 @@ class PortfolioAgent:
             # Get relevant context from vector store
             context = self.vector_store.similarity_search(question, k=3)
             docs_content = "\n\n".join(
-                f"Source: {doc.metadata}\nContent: {doc.page_content}"
+                f"Content: {doc.page_content}"
                 for doc in context
             )
 
